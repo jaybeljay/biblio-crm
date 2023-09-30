@@ -1,0 +1,13 @@
+volumes:
+  dbdata6:
+
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGODB_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGODB_PASSWORD
+    volumes: 
+    - dbdata6:/data/db
+    ports:
+      - $MONGODB_PORT:27017
