@@ -1,11 +1,11 @@
 export type AppEnvironment = 'development' | 'staging' | 'production';
 
 export interface Config {
-    app: {
-        port: number,
-        environment: AppEnvironment,
-      },
-      mongo: {
-        uri: string
-      }
+  app: {
+    port: number;
+    environment: AppEnvironment;
+  };
+  mongo: {
+    uri: string;
+  };
 }

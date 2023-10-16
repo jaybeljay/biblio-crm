@@ -16,15 +16,17 @@ export const validationSchema = Joi.object({
   MONGODB_URI: Joi.string().required(),
 });
 
-export const configuration: () => Promise<Config> = async () =>  {return {
-  app: {
-    port: parseInt(process.env.PORT, 10),
-    environment: currentEnv,
-  },
-  mongo: {
-    uri: process.env.MONGODB_URI,
-  }
-}};
+export const configuration: () => Promise<Config> = async () => {
+  return {
+    app: {
+      port: parseInt(process.env.PORT, 10),
+      environment: currentEnv,
+    },
+    mongo: {
+      uri: process.env.MONGODB_URI,
+    },
+  };
+};
 
 export const validationOptions: BaseValidationOptions = {
   abortEarly: false,
