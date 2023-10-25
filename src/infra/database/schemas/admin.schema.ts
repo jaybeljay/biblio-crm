@@ -1,4 +1,4 @@
-import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Model, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IBase } from '../interfaces/base.interface';
 
@@ -13,7 +13,7 @@ export class Admin implements IBase {
   lastName: string;
 
   @Prop()
-  middleName: string;
+  middleName?: string;
 
   @Prop({ unique: true })
   email: string;

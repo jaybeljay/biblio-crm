@@ -5,18 +5,17 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AdminDocument } from 'src/infra/database/schemas/admin.schema';
+import { Admin, AdminDocument } from 'src/infra/database/schemas/admin.schema';
 import { CreateAdminFeatureDto } from './dto/create/create-admin.feature.dto';
 import { AdminResponseDto } from './dto/admin.response.dto';
 import { ExceptionTypes } from 'src/modules/common/types/exceptions';
 import { BcryptService } from 'src/modules/third-parties/bcrypt';
 import { UpdateAdminFeatureDto } from './dto/update/update-admin.feature.dto';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AdminService {
   constructor(
-    @InjectModel('Admin') private adminModel: Model<AdminDocument>,
+    @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
     private readonly bcryptService: BcryptService,
   ) {}
 

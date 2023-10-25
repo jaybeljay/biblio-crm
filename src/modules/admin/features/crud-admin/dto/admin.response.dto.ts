@@ -24,7 +24,8 @@ export class AdminResponseDto {
   isSuperAdmin: boolean;
 
   constructor(document: AdminDocument) {
-    (this.id = document._id.toString()), (this.firstName = document.firstName);
+    this.id = document._id?.toString();
+    this.firstName = document.firstName;
     this.lastName = document.lastName;
     this.middleName = document.middleName;
     this.email = document.email;
