@@ -1,12 +1,24 @@
-import { Body, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { AdminPanelAdminController } from '../../common/decorators';
+import {
+  Body,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AdminPanelAdminController } from '../../common/decorators/decorators';
 import { AdminService } from './admin.service';
 import { CreateAdminRequestDto } from './dto/create/create-admin.request.dto';
 import { AdminResponseDto } from './dto/admin.response.dto';
 import { UpdateAdminRequestDto } from './dto/update/update-admin.request.dto';
 import { ParseObjectIdPipe } from 'src/modules/common/validation/object-id.pipe';
+import { AdminGuard } from '../../common/guards/admin.guard';
+import { AdminRole } from '../../common/types';
+import { JwtAuthGuard } from 'src/modules/common/guards/auth-jwt.guard';
 
 @AdminPanelAdminController()
+@UseGuards(JwtAuthGuard, AdminGuard(AdminRole.SUPER_ADMIN))
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 

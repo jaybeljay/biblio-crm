@@ -8,4 +8,8 @@ export interface Config {
   mongo: {
     uri: string;
   };
+  jwt: {
+    secret: string;
+    expiresIn: string;
+  };
 }
