@@ -1,11 +1,8 @@
-import { HydratedDocument, Model, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IBase } from '../interfaces/base.interface';
-
-export type AdminDocument = HydratedDocument<Admin>;
+import { IBaseOrmEntity } from 'src/lib/database/interfaces/base.interface';
 
 @Schema()
-export class Admin implements IBase {
+export class Admin implements IBaseOrmEntity {
   @Prop()
   firstName: string;
 

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Admin, AdminSchema } from '../schemas/admin.schema';
+import { Admin, AdminSchema } from '../module/schemas/admin.schema';
 
 const data: Admin[] = [
   {
@@ -15,7 +15,9 @@ const data: Admin[] = [
 ];
 
 async function seed() {
-  const conn = mongoose.createConnection(process.env.MONGODB_URI, {dbName: process.env.MONGODB_NAME});
+  const conn = mongoose.createConnection(process.env.MONGODB_URI, {
+    dbName: process.env.MONGODB_NAME,
+  });
   const AdminModel = conn.model(Admin.name, AdminSchema);
   AdminModel.create(data).then(() => conn.close());
 }

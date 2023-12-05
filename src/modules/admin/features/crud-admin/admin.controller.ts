@@ -26,10 +26,7 @@ export class AdminController {
   async createAdmin(
     @Body() dto: CreateAdminRequestDto,
   ): Promise<AdminResponseDto> {
-    return this.adminService.create({
-      ...dto,
-      isSuperAdmin: false,
-    });
+    return this.adminService.create(dto);
   }
 
   @Patch(':id')

@@ -7,7 +7,11 @@ import { JwtService } from './jwt.service';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtConfigService } from './jwt-config.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Admin, AdminSchema } from 'src/infra/database/schemas/admin.schema';
+import {
+  Admin,
+  AdminSchema,
+} from 'src/infra/database/module/schemas/admin.schema';
+import { ConnectionName } from 'src/infra/database/connections';
 
 @Module({
   imports: [
@@ -16,7 +20,7 @@ import { Admin, AdminSchema } from 'src/infra/database/schemas/admin.schema';
     NestJwtModule.registerAsync({
       useClass: JwtConfigService,
     }),
-    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
+    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }], ConnectionName.BASE),
   ],
   providers: [JwtStrategy, JwtService],
   exports: [PassportModule, JwtStrategy, JwtService],
