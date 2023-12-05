@@ -6,6 +6,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import * as mongoose from 'mongoose';
 
 const useSwagger = (app: INestApplication): void => {
   const options = new DocumentBuilder()
@@ -34,6 +35,8 @@ async function bootstrap() {
       bufferLogs: true,
     },
   );
+
+  mongoose.set('debug', true);
 
   useSwagger(app);
 

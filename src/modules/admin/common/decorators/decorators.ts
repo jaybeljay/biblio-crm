@@ -1,6 +1,5 @@
-import { Controller, UseGuards, applyDecorators } from '@nestjs/common';
+import { Controller, applyDecorators } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/modules/common/guards/auth-jwt.guard';
 
 const prefix = 'admin-panel';
 

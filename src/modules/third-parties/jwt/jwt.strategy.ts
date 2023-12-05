@@ -6,13 +6,15 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtAudience, JwtPayload, JwtTokenType } from './jwt.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Admin, AdminDocument } from 'src/infra/database/schemas/admin.schema';
+import { Admin } from 'src/infra/database/module/schemas/admin.schema';
+import { AdminDocument } from 'src/infra/database/module/documents/admin.document';
+import { ConnectionName } from 'src/infra/database/connections';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     readonly configService: ConfigService,
-    @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
+    @InjectModel(Admin.name, ConnectionName.BASE) private adminModel: Model<AdminDocument>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

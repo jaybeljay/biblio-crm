@@ -7,21 +7,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AdminRole } from '../types';
-import { Admin, AdminDocument } from 'src/infra/database/schemas/admin.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { ExceptionTypes } from 'src/modules/common/types/exceptions';
+import { AdminDocument } from 'src/infra/database/module/documents/admin.document';
+import { UnitOfWork } from 'src/infra/database/module/unit-of-work/unit-of-work';
 
 export function AdminGuard(...roles: AdminRole[]): Type<CanActivate> {
   class AdminGuardMixin implements CanActivate {
     constructor(
-      @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
+      private readonly uow: UnitOfWork,
     ) {
       roles = roles.length ? roles : [AdminRole.ADMIN, AdminRole.SUPER_ADMIN];
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-      const { user }: { user?: AdminDocument } = context
+      const sessionId = await this.uow.startSession();
+      return this.uow.runInTransaction(sessionId, async () => {
+        const { user }: { user?: AdminDocument } = context
         .switchToHttp()
         .getRequest();
 
@@ -36,10 +37,12 @@ export function AdminGuard(...roles: AdminRole[]): Type<CanActivate> {
       }
 
       return true;
+      })
     }
 
-    private async getUserRole(userId: string): Promise<AdminRole> {
-      const admin = await this.adminModel.findById(userId);
+    private async getUserRole(userId: string, sessionId?: string): Promise<AdminRole> {
+        const adminRepository = this.uow.getAdminRepository(sessionId);
+        const admin = await adminRepository.findOne({_id: userId});
 
       if (!admin) {
         throw new ForbiddenException(ExceptionTypes.ACCESS_DENIED);
