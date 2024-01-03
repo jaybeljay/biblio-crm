@@ -1,27 +1,6 @@
 version: '3.9'
 
 services: 
-
-    # setup MongoDB cluster for production
-    mongo-replica-setup:
-        container_name: mongo-setup
-        image: 'mongo:4.2'
-        restart: on-failure
-        networks:
-            - netApplication
-        volumes:
-        - ./.gitlab/mongodb/scripts/mongosetup.sh:/scripts/mongosetup.sh
-        entrypoint: ["bash", "/scripts/mongosetup.sh" ]
-        env_file:
-            - .env
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-        depends_on:
-            - mongo1
-            - mongo2
-            - mongo3
-
     mongo1:
         hostname: 'mongo1'
         container_name: 'mongo1'
