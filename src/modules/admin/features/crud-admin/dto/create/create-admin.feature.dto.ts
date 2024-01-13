@@ -5,5 +5,4 @@ export class CreateAdminFeatureDto {
   email: string;
   password: string;
   isActive: boolean;
-  isSuperAdmin: boolean;
 }

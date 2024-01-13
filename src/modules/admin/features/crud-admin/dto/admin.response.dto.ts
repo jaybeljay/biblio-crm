@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AdminDocument } from 'src/infra/database/schemas/admin.schema';
+import { AdminDocument } from 'src/infra/database/module/documents/admin.document';
 
 export class AdminResponseDto {
   @ApiProperty()

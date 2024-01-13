@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import * as mongoose from 'mongoose';
 
 const useSwagger = (app: INestApplication): void => {
   const options = new DocumentBuilder()
@@ -34,6 +35,8 @@ async function bootstrap() {
       bufferLogs: true,
     },
   );
+
+  mongoose.set('debug', true);
 
   useSwagger(app);
 

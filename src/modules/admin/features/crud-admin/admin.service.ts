@@ -3,40 +3,42 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Admin, AdminDocument } from 'src/infra/database/schemas/admin.schema';
 import { CreateAdminFeatureDto } from './dto/create/create-admin.feature.dto';
 import { AdminResponseDto } from './dto/admin.response.dto';
 import { ExceptionTypes } from 'src/modules/common/types/exceptions';
 import { BcryptService } from 'src/modules/third-parties/bcrypt';
 import { UpdateAdminFeatureDto } from './dto/update/update-admin.feature.dto';
+import { UnitOfWork } from 'src/infra/database/module/unit-of-work/unit-of-work';
 
 @Injectable()
 export class AdminService {
   constructor(
-    @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
+    private readonly uow: UnitOfWork,
     private readonly bcryptService: BcryptService,
   ) {}
 
   async create(dto: CreateAdminFeatureDto): Promise<AdminResponseDto> {
     try {
-      const emailExists = await this.adminModel.exists({ email: dto.email });
+      const sessionId = await this.uow.startSession();
+      return this.uow.runInTransaction(sessionId, async () => {
+        const adminRepository = this.uow.getAdminRepository(sessionId);
 
-      if (emailExists) {
-        throw new ConflictException(ExceptionTypes.EMAIL_ALREADY_EXISTS);
-      }
+        const emailExists = await adminRepository.exists({ email: dto.email });
 
-      const hashedPassword = await this.bcryptService.hash(dto.password);
+        if (emailExists) {
+          throw new ConflictException(ExceptionTypes.EMAIL_ALREADY_EXISTS);
+        }
 
-      const newAdmin = new this.adminModel({
-        ...dto,
-        password: hashedPassword,
+        const hashedPassword = await this.bcryptService.hash(dto.password);
+
+        const admin = await adminRepository.create({
+          ...dto,
+          password: hashedPassword,
+          isSuperAdmin: false,
+        });
+
+        return new AdminResponseDto(admin);
       });
-
-      const admin = await newAdmin.save();
-
-      return new AdminResponseDto(admin);
     } catch (e) {
       throw e;
     }
@@ -46,43 +48,65 @@ export class AdminService {
     adminId: string,
     dto: UpdateAdminFeatureDto,
   ): Promise<AdminResponseDto> {
-    const admin = await this.adminModel.findByIdAndUpdate(adminId, dto, {
-      new: true,
-    });
+    const sessionId = await this.uow.startSession();
+    return this.uow.runInTransaction(sessionId, async () => {
+      const adminRepository = this.uow.getAdminRepository(sessionId);
 
-    if (!admin) {
-      throw new NotFoundException(`Admin #${adminId} not found`);
-    }
-    return new AdminResponseDto(admin);
+      const admin = await adminRepository.findOneAndUpdate(
+        { _id: adminId },
+        dto,
+      );
+
+      if (!admin) {
+        throw new NotFoundException(ExceptionTypes.USER_NOT_FOUND);
+      }
+
+      return new AdminResponseDto(admin);
+    });
   }
 
   async findAll(): Promise<AdminResponseDto[]> {
-    const admins = await this.adminModel.find();
+    const sessionId = await this.uow.startSession();
+    return this.uow.runInTransaction(sessionId, async () => {
+      const adminRepository = this.uow.getAdminRepository(sessionId);
 
-    if (!admins.length) {
-      throw new NotFoundException('Admins not found');
-    }
+      const admins = await adminRepository.findAll();
 
-    return admins.map((admin) => new AdminResponseDto(admin));
+      if (!admins.length) {
+        return [];
+      }
+
+      return admins.map((admin) => new AdminResponseDto(admin));
+    });
   }
 
   async findOne(adminId: string): Promise<AdminResponseDto> {
-    const admin = await this.adminModel.findById(adminId).exec();
+    const sessionId = await this.uow.startSession();
+    return this.uow.runInTransaction(sessionId, async () => {
+      const adminRepository = this.uow.getAdminRepository(sessionId);
 
-    if (!admin) {
-      throw new NotFoundException(`Admin #${adminId} not found`);
-    }
+      const admin = await adminRepository.findOne({ _id: adminId });
 
-    return new AdminResponseDto(admin);
+      if (!admin) {
+        throw new NotFoundException(ExceptionTypes.USER_NOT_FOUND);
+      }
+
+      return new AdminResponseDto(admin);
+    });
   }
 
   async delete(adminId: string): Promise<void> {
-    const admin = await this.adminModel.findByIdAndDelete(adminId);
+    const sessionId = await this.uow.startSession();
+    return this.uow.runInTransaction(sessionId, async () => {
+      const adminRepository = this.uow.getAdminRepository(sessionId);
 
-    if (!admin) {
-      throw new NotFoundException(`Admin #${adminId} not found`);
-    }
+      const admin = await adminRepository.findByIdAndDelete(adminId);
 
-    return;
+      if (!admin) {
+        throw new NotFoundException(ExceptionTypes.USER_NOT_FOUND);
+      }
+
+      return;
+    });
   }
 }
