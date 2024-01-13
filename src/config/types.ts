@@ -7,6 +7,12 @@ export interface Config {
   };
   mongo: {
     uri: string;
+    database: string;
+    username: string;
+    password: string;
+    port: number;
+    host: string;
+    replicaSet: string;
   };
   jwt: {
     secret: string;

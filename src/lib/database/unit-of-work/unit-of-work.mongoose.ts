@@ -9,7 +9,7 @@ export abstract class UnitOfWorkMongoose {
     ClientSession
   >();
 
-  constructor(@InjectConnection(ConnectionName.BASE) private connection: Connection) {}
+  constructor(@InjectConnection() private connection: Connection) {}
 
   async startSession(): Promise<string> {
     const id = randomUUID();
