@@ -14,7 +14,7 @@ import { ConnectionName } from 'src/infra/database/connections';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     readonly configService: ConfigService,
-    @InjectModel(Admin.name, ConnectionName.BASE) private adminModel: Model<AdminDocument>,
+    @InjectModel(Admin.name) private adminModel: Model<AdminDocument>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

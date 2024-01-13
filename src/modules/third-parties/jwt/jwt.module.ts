@@ -20,7 +20,7 @@ import { ConnectionName } from 'src/infra/database/connections';
     NestJwtModule.registerAsync({
       useClass: JwtConfigService,
     }),
-    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }], ConnectionName.BASE),
+    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
   ],
   providers: [JwtStrategy, JwtService],
   exports: [PassportModule, JwtStrategy, JwtService],

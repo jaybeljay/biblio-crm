@@ -8,7 +8,7 @@ import { ConnectionName } from '../connections';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }], ConnectionName.BASE),
+    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
   ],
   providers: [...repositories, UnitOfWork],
   exports: [UnitOfWork],
