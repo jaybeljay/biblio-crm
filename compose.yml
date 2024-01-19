@@ -1,16 +1,93 @@
-volumes:
-  dbdata6:
+version: '3.9'
 
-services:
-  mongo:
-    image: mongo
-    volumes: 
-    - dbdata6:/data/db
-    - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
-    environment:
-      MONGO_INITDB_DATABASE: $MONGODB_DATABASE
-      MONGO_INITDB_ROOT_USERNAME: $MONGODB_USERNAME
-      MONGO_INITDB_ROOT_PASSWORD: $MONGODB_PASSWORD
-    command: mongod --help
-    ports:
-      - $MONGODB_PORT:27017
+services: 
+    mongo1:
+        container_name: 'mongo1'
+        image: 'mongo:4.2'
+        restart: 'on-failure'
+        command: ["-f", "/etc/mongod.conf", "--keyFile", "/auth/file.key", "--replSet", "${MONGO_REPLICA_SET_NAME}", "--bind_ip_all"]
+        ports: 
+            - ${MONGO_PORT_1}:${MONGO_EXPOSE_PORT} 
+        networks: 
+            - netApplication
+        volumes:
+            - mongoData1:/data/db
+            - mongoLog1:/var/log/mongodb
+            - ./.gitlab/mongodb/initdb.d/:/docker-entrypoint-initdb.d/
+            - ./.gitlab/mongodb/mongod.conf:/etc/mongod.conf
+            - ./.gitlab/mongodb/file.key:/auth/file.key
+        healthcheck:
+            test: echo 'rs.status().ok' | mongo admin -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
+            interval: 30s
+            start_period: 60s
+        env_file:
+            - .env
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+
+    mongo2:
+        container_name: 'mongo2'
+        image: 'mongo:4.2'
+        command: ["-f", "/etc/mongod.conf", "--keyFile", "/auth/file.key", "--replSet", "${MONGO_REPLICA_SET_NAME}", "--bind_ip_all"]
+        restart: 'on-failure'
+        ports: 
+            - ${MONGO_PORT_2}:${MONGO_EXPOSE_PORT}  
+        networks: 
+            - netApplication
+        volumes:
+            - mongoData2:/data/db
+            - mongoLog2:/var/log/mongodb
+            - ./.gitlab/mongodb/mongod.conf:/etc/mongod.conf
+            - ./.gitlab/mongodb/file.key:/auth/file.key
+        env_file:
+            - .env
+        healthcheck:
+            test: echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
+            interval: 30s
+            start_period: 60s
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+        depends_on: 
+            - mongo1
+
+    mongo3:
+        container_name: 'mongo3'
+        image: 'mongo:4.2'
+        command: ["-f", "/etc/mongod.conf", "--keyFile", "/auth/file.key", "--replSet", "${MONGO_REPLICA_SET_NAME}", "--bind_ip_all"]
+        restart: 'on-failure'
+        ports: 
+            - ${MONGO_PORT_3}:${MONGO_EXPOSE_PORT}  
+        networks: 
+            - netApplication
+        volumes:
+            - mongoData3:/data/db
+            - mongoLog3:/var/log/mongodb
+            - ./.gitlab/mongodb/mongod.conf:/etc/mongod.conf
+            - ./.gitlab/mongodb/file.key:/auth/file.key
+        env_file:
+            - .env
+        healthcheck:
+            test: echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
+            interval: 30s
+            start_period: 60s
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+        depends_on: 
+            - mongo1
+
+volumes: 
+    mongoData1:
+    mongoData2:
+    mongoData3:
+    mongoLog1:
+    mongoLog2:
+    mongoLog3:
+
+networks: 
+    netApplication:
